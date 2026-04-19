@@ -79,44 +79,47 @@ const TechnicalCatalog: React.FC = () => {
             {filteredData.length === 0 ? (
                <div className="text-center p-4 text-sm text-gray-500">No matching objects found.</div>
             ) : (
-               filteredData.map(db => (
+               filteredData.map(db => {
+                 const hasSchemas = db.schemas.length > 0;
+                 return (
                  <div key={db.id} className="mb-1">
                    {/* Database Node */}
                    <div 
-                     className="flex items-center px-2 py-1.5 hover:bg-gray-200/50 rounded cursor-pointer text-sm text-gray-800 font-medium select-none group"
-                     onClick={(e) => toggleNode(db.id, e)}
+                     className={`flex items-center px-2 py-1.5 rounded text-sm select-none group ${hasSchemas ? 'cursor-pointer hover:bg-gray-200/50 text-gray-800 font-medium' : 'text-gray-500'}`}
+                     onClick={(e) => hasSchemas && toggleNode(db.id, e)}
                    >
                      <span className="w-4 mr-1 flex items-center justify-center text-gray-400">
-                       {expandedNodes.has(db.id) ? <ChevronDown size={14}/> : <ChevronRight size={14}/>}
+                       {hasSchemas ? (expandedNodes.has(db.id) ? <ChevronDown size={14}/> : <ChevronRight size={14}/>) : null}
                      </span>
-                     <Database size={14} className="mr-2 text-absa-primary" />
+                     <Database size={14} className={`mr-2 ${hasSchemas ? 'text-absa-primary' : 'text-gray-400'}`} />
                      <span className="truncate flex-1">{db.name}</span>
-                     <span className="text-[10px] text-gray-400 font-normal px-1 group-hover:text-gray-600 transition-colors">{db.type}</span>
+                     <span className={`text-[10px] font-normal px-1 transition-colors ${hasSchemas ? 'text-gray-400 group-hover:text-gray-600' : 'text-gray-300'}`}>{db.type}</span>
+                     {!hasSchemas && <span className="text-[10px] uppercase tracking-widest text-gray-400">Empty</span>}
                    </div>
 
                    {/* Schemas */}
-                   {expandedNodes.has(db.id) && (
+                   {expandedNodes.has(db.id) && hasSchemas && (
                      <div className="ml-5 mt-1 border-l border-gray-200">
-                       {db.schemas.map(schema => (
+                       {db.schemas.map(schema => {
+                         const hasTables = schema.tables.length > 0;
+                         return (
                          <div key={schema.id}>
                            {/* Schema Node */}
                            <div 
-                             className="flex items-center pl-3 pr-2 py-1.5 hover:bg-gray-200/50 cursor-pointer text-sm text-gray-700 select-none"
-                             onClick={(e) => toggleNode(schema.id, e)}
+                             className={`flex items-center pl-3 pr-2 py-1.5 text-sm select-none ${hasTables ? 'cursor-pointer hover:bg-gray-200/50 text-gray-700' : 'text-gray-400'}`}
+                             onClick={(e) => hasTables && toggleNode(schema.id, e)}
                            >
                              <span className="w-4 mr-1 flex items-center justify-center text-gray-400">
-                               {expandedNodes.has(schema.id) ? <ChevronDown size={14}/> : <ChevronRight size={14}/>}
+                               {hasTables ? (expandedNodes.has(schema.id) ? <ChevronDown size={14}/> : <ChevronRight size={14}/>) : null}
                              </span>
-                             <Folder size={14} className="mr-2 text-blue-500 fill-blue-500/20" />
+                             <Folder size={14} className={`mr-2 ${hasTables ? 'text-blue-500 fill-blue-500/20' : 'text-gray-300'}`} />
                              <span className="truncate">{schema.name}</span>
+                             {!hasTables && <span className="ml-2 text-[10px] uppercase tracking-wider text-gray-400">Empty</span>}
                            </div>
 
                            {/* Tables */}
-                           {expandedNodes.has(schema.id) && (
+                           {expandedNodes.has(schema.id) && hasTables && (
                              <div className="ml-5 border-l border-gray-200">
-                               {schema.tables.length === 0 && (
-                                   <div className="pl-6 py-1.5 text-xs text-gray-400 italic">No tables</div>
-                               )}
                                {schema.tables.map(table => {
                                  const isSelected = selectedTable?.id === table.id;
                                  return (
@@ -133,11 +136,11 @@ const TechnicalCatalog: React.FC = () => {
                              </div>
                            )}
                          </div>
-                       ))}
+                       )})}
                      </div>
                    )}
                  </div>
-               ))
+               )})
             )}
           </div>
         </div>
